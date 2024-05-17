@@ -16,7 +16,6 @@ export default function RootLayout({
 }) {
   const [navIsOpen, setNavIsOpen] = useState(false);
   return (
-    <AuthProvider>
       <EuiProvider colorMode="light">
         <Providers>
           <html lang="en">
@@ -31,6 +30,5 @@ export default function RootLayout({
           </html>
         </Providers>
       </EuiProvider>
-    </AuthProvider>
   );
 }

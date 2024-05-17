@@ -1,7 +1,6 @@
 "use client";
 
 import { Button, LoadingPage } from "@/components";
-import { UseAuthContext } from "@/hooks/login";
 import {
   EuiButtonIcon,
   EuiFieldText,
@@ -22,7 +21,6 @@ import { useState } from "react";
 export default function Login() {
   const router = useRouter();
   const [login, setLogin] = useState({ email: "", password: "" });
-  const { loginEmailAndPassword, loading } = UseAuthContext();
   const [showModal, setShowModal] = useState(false);
 
   const handelChange = (e: any) => {
@@ -32,13 +30,9 @@ export default function Login() {
   };
 
   const onClick = () => {
-    loginEmailAndPassword(login.email, login.password);
     router.push("/");
   };
 
-  if (loading === null) {
-    <LoadingPage isLoading={true} />;
-  }
 
   return (
     <EuiPageHeaderContent>
@@ -79,7 +73,7 @@ export default function Login() {
               </EuiFormRow>
               <div style={{ display: "inline-grid", width: "150px" }}>
                 <EuiSpacer />
-                <Button onClick={onClick} isLoading={loading} fill>
+                <Button onClick={onClick} isLoading={false} fill>
                   Login
                 </Button>
                 <EuiSpacer />

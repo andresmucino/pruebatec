@@ -1,9 +1,10 @@
 "use client";
 
-import { Button, GeneralForm, Header, LoadingPage, Modal } from "@/components";
-import { RegisterUser, graphQLClient } from "@/graphql";
+import { Button, Header, LoadingPage } from "@/components";
+import { auth } from "@/config";
 import { useToastsContext } from "@/hooks";
 import {
+  EuiFieldText,
   EuiFlexGroup,
   EuiFlexItem,
   EuiForm,
@@ -12,9 +13,7 @@ import {
   EuiPanel,
   EuiSpacer,
 } from "@elastic/eui";
-import { Toast } from "@elastic/eui/src/components/toast/global_toast_list";
-import { useMutation } from "@tanstack/react-query";
-import Link from "next/link";
+import { signInWithEmailAndPassword } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -22,75 +21,40 @@ export default function About() {
   const router = useRouter();
   const [url, setUrl] = useState("");
   const [registerUser, setRegisterUser] = useState({
-    firstName: "",
-    lastName: "",
-    phone: "",
     email: "",
+    password: "",
   });
   const [confirmRegister, setConfirmRegister] = useState({
-    firstName: false,
-    lastName: false,
-    phone: false,
     email: false,
   });
   const [showModal, setShowModal] = useState(false);
   const { globalToasts, pushToast } = useToastsContext();
 
-  const { mutate, status } = useMutation({
-    mutationKey: ["registerUser"],
-    mutationFn: (user: any) => {
-      return graphQLClient.request(RegisterUser, user);
-    },
-  });
+  const signIn = async (email: any, password: any) => {
+    let result = null,
+      error = null;
+    try {
+      result = await signInWithEmailAndPassword(auth, email, password);
+    } catch (e) {
+      error = e;
+    }
 
-  const onSaveData = (e: any) => {
+    return { result, error };
+  };
+
+  const onSaveData = async (e: any) => {
     e.preventDefault();
-    mutate(
-      {
-        input: {
-          firstName: registerUser.firstName,
-          lastName: registerUser.lastName,
-          phone: "+52 " + registerUser.phone,
-          email: registerUser.email,
-        },
-      },
-      {
-        onSuccess: (data: any) => {
-          setUrl(data.registerUser.url);
-          setShowModal(true);
-        },
-        onError: (error) => {
-          const newToast: Toast[] = [];
 
-          newToast.push({
-            id: "1",
-            title: "Registro",
-            text: (
-              <p>
-                No se pudo registrar, intenta de nuevo o contacta a tú
-                administrador
-              </p>
-            ),
-            color: "danger",
-          });
-          pushToast(newToast);
-        },
-      }
-    );
+    const { result, error } = await signIn(email, password);
+
+    if (error) {
+      return console.log(error);
+    }
   };
 
   const validateFields = () => {
     let valid = true;
-    if (
-      registerUser.email === "" ||
-      confirmRegister.email ||
-      registerUser.firstName === "" ||
-      confirmRegister.firstName ||
-      registerUser.lastName === "" ||
-      confirmRegister.lastName ||
-      registerUser.phone === "" ||
-      confirmRegister.phone
-    ) {
+    if (registerUser.email === "" || registerUser.password === "") {
       valid = false;
     }
 
@@ -114,12 +78,14 @@ export default function About() {
             <EuiFlexGroup>
               <EuiFlexItem></EuiFlexItem>
               <EuiFlexItem grow={1} style={{ justifyContent: "center" }}>
-                <GeneralForm
+                {/* <GeneralForm
                   generalFormData={registerUser}
                   setGeneralFormData={setRegisterUser}
                   validateGeneralFormData={confirmRegister}
                   setValidateGeneralFormData={setConfirmRegister}
-                />
+                /> */}
+                <EuiFieldText name="" />
+                <EuiFieldText />
                 <div style={{ width: "150px" }}>
                   <EuiSpacer />
                   <Button
@@ -137,7 +103,7 @@ export default function About() {
           </EuiForm>
         </EuiPanel>
       </EuiPanel>
-      {showModal && (
+      {/* {showModal && (
         <Modal
           onCloseModal={() => setShowModal(!showModal)}
           titleModal={"Para ingresar"}
@@ -147,7 +113,7 @@ export default function About() {
           </Link>
           <EuiSpacer />
         </Modal>
-      )}
+      )} */}
       {globalToasts}
     </EuiPageHeaderContent>
   );
